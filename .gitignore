@@ -25,3 +25,7 @@ dist/
 *.wav
 *.flac
 *.m4a
+
+# A weboldal kis méretű, verziózott arculati fotói
+!assets/*.jpg
+.artifacts/
