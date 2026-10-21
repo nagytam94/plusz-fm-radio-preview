@@ -40,7 +40,7 @@ Az ügynök a fix, a motor cserélhető; motorváltáskor a Napló kap egy sort.
 
 ## Nem része
 - Fiókok, adminisztráció, saját rádióstream üzemeltetése.
-- Nyilvános kitétel és a jelenlegi éles oldal módosítása.
+- A jelenlegi pluszfm.ro oldal módosítása; a külön GitHub Pages előnézet a tulaj későbbi kérésére része lett a munkának.
 
 ## Parkoló
 - Későbbi szerkesztőségi tartalomkezelés, automatikus dalinformáció és archívum.
@@ -49,3 +49,4 @@ Az ügynök a fix, a motor cserélhető; motorváltáskor a Napló kap egy sort.
 - 2026-10-21 — Projektindítás. A tulaj az eredeti angol zenekari oldalt magyar Plusz FM rádióoldalra módosította, két arculati referenciát adott és a jelenlegi oldal streamjét kérte.
 - 2026-10-21 — A tulaj kérésére Argon kapta a lejátszó modult és tesztjeit; az ingyenes OpenRouter külön teszteseteket adott. Az első OpenRouter-modell 404-et adott, a második (cohere/north-mini-code:free) sikeres. Ember saját futtatása: 18/18 egységteszt sikeres.
 - 2026-10-21 — Első változat megépítve, a műsorrend tájékoztató, a képek illusztrációk. Ember kiegészítő tesztje feltárta a késleltetett pause és a váratlan streamvég hibáját; javítva. Végső saját futtatás: 20/20 egységteszt és 8/8 Chrome-próba sikeres, mindkét valódi MP3 streammel. Előnézet: http://127.0.0.1:56856/index.html. A projekt aktív, tulajdonosi lezárásra nem került sor.
+- 2026-10-21 — A tulaj GitHub Pages kitételt kért. Külön docs csomag készült kizárólag a weboldal fájljaival; a projektkártya és a tesztek nem kerülnek a webes könyvtárba. A GitHub tároló alapbeállítása privát.

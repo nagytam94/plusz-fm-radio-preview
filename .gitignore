@@ -28,4 +28,5 @@ dist/
 
 # A weboldal kis méretű, verziózott arculati fotói
 !assets/*.jpg
+!docs/assets/*.jpg
 .artifacts/

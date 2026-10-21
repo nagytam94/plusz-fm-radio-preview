@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 72" fill="none">
+  <g stroke="#ff4b16" stroke-width="7.5" stroke-linecap="square">
+    <path d="M15 7a42 42 0 0 0 0 58M28 19a25 25 0 0 0 0 34M77 7a42 42 0 0 1 0 58M64 19a25 25 0 0 1 0 34"/>
+    <path d="M46 23v26M33 36h26" stroke-width="9"/>
+  </g>
+  <g fill="#f9f9f9" font-family="Inter,Arial,sans-serif">
+    <text x="99" y="37" font-size="37" font-weight="850" letter-spacing="-.8">PLUSZ</text>
+    <text x="101" y="61" font-size="24" font-weight="550" letter-spacing="2">FM</text>
+  </g>
+</svg>

@@ -53,4 +53,10 @@ Inter: Google Fonts, saját kiszolgálás; SIL Open Font License (`assets/Inter-
 
 ## Átadás
 
-A helyi előnézet arculati első változat. Nincs éles kitétel vagy az eredeti rádióoldal módosítása. A záró jóváhagyás a tulajé a projektkártyán.
+A változat arculati előnézet. Az eredeti rádióoldalt nem módosítja. A záró jóváhagyás a tulajé a projektkártyán.
+
+## GitHub Pages
+
+Kitételi csomag készítése: `npm run build:pages`. A Pages forrása a `main` ág `/docs` mappája. A fájlhivatkozások relatívak, így projektútvonalon is működnek. A csomag kizárólag a weboldalhoz szükséges fájlokat tartalmazza; a projektkártyát és a teszteket nem szolgálja ki a webhely.
+
+Frissítéskor az oldal módosítása után futtasd újra a build parancsot, majd a változásokkal együtt a `docs` mappát is mentsd és töltsd fel. A kitétel nem használ külön fizetős szolgáltatást vagy telepített függőséget. A privát forrásból publikáló Pages elérhetősége a GitHub-csomagtól függ.
