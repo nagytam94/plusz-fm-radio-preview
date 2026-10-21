@@ -1,0 +1,201 @@
+#!/bin/bash
+# A projektek mentési pontjainak pre-commit gátja (a fájl neve történelmi): (1) az 5 MB-nál nagyobb fájlokat, és
+# (2) 0.9: a titkokat (kulcs, token, privát kulcs, .env) megállítja a stage-elt tartalomban.
+# A titok-vizsgálat a fájl végén lévő kis python-programmal megy (EGY forrás): a Railway-feltöltés is ezt hívja
+#   nagyfajl-gat --titok-fajlok <mappa>     (NUL-elválasztott utak a stdin-en; rc 0 tiszta · 1 titok · 2 nem futott le)
+# Megkerülés csak látható módon: git commit --no-verify.
+
+read -r -d '' TITOK_PY <<'PYEOF' || true
+import base64
+import json
+import os
+import re
+import subprocess
+import sys
+
+MAX_OLVAS = 8 * 1024 * 1024
+MINTAK = (
+    ("Supabase titkos kulcs (sb_secret_…)", re.compile(r"(?<![A-Za-z0-9_])sb_secret_[A-Za-z0-9_-]{12,}")),
+    ("Stripe éles kulcs (sk_live_/rk_live_)", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{8,}")),
+    ("GitHub-token", re.compile(r"(?<![A-Za-z0-9])(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})")),
+    ("privát kulcs (PRIVATE KEY)", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")),
+)
+# A Resend-kulcs: a doksi csak az `re_` előtagot adja (a hosszt nem) — ezért előtag + legalább 16 kulcs-karakter, és a
+# farokban betű ÉS számjegy is kell: így a `re_xxxxxxxxx` mintapéldák és a `re_compile_minta` jellegű nevek átmennek.
+RESEND = re.compile(r"(?<![A-Za-z0-9_])re_[A-Za-z0-9_]{16,}")
+JWT = re.compile(r"(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{6,}\.(eyJ[A-Za-z0-9_-]{6,})\.[A-Za-z0-9_-]*")
+SERVICE_ROLE = re.compile(r'"role"\s*:\s*"service_role"')
+
+
+def jwt_service_role(payload_b64):
+    try:
+        nyers = base64.urlsafe_b64decode(payload_b64 + "=" * (-len(payload_b64) % 4))
+        szoveg = nyers.decode("utf-8", "replace")
+    except (ValueError, TypeError):
+        return False
+    try:
+        d = json.loads(szoveg)
+        if isinstance(d, dict):
+            return d.get("role") == "service_role"
+    except ValueError:
+        pass
+    return SERVICE_ROLE.search(szoveg) is not None
+
+
+def tartalom_talalat(adat):
+    """A tartalomban talált titok-típusok listája (az értéket SOHA nem adja vissza)."""
+    if b"\0" in adat[:8192]:
+        return []
+    szoveg = adat.decode("utf-8", "replace")
+    tipusok = []
+    for cimke, minta in MINTAK:
+        if minta.search(szoveg):
+            tipusok.append(cimke)
+    for m in RESEND.finditer(szoveg):
+        farok = m.group(0)[3:]
+        if re.search(r"[0-9]", farok) and re.search(r"[A-Za-z]", farok):
+            tipusok.append("Resend API-kulcs (re_…)")
+            break
+    for m in JWT.finditer(szoveg):
+        if jwt_service_role(m.group(1)):
+            tipusok.append("Supabase service_role kulcs (JWT)")
+            break
+    return tipusok
+
+
+def env_fajl(ut):
+    nev = os.path.basename(ut)
+    return (nev == ".env" or nev.startswith(".env.")) and nev != ".env.example"
+
+
+def tiszta_nev(ut):
+    return "".join(c if c.isprintable() else "?" for c in ut)
+
+
+def jelent(talalatok):
+    """talalatok: [(ut, [tipus…])] — magyar üzenet a stderr-re. Az értéket nem írja ki."""
+    for ut, tipusok in talalatok:
+        n = tiszta_nev(ut)
+        if env_fajl(ut):
+            sys.stderr.write("HIBA: A(z) %s környezeti fájl titkot szokott tárolni, ezért nem kerülhet mentési pontba. "
+                             "A kulcs a Beállítások → Kulcsok helyére való.\n" % n)
+        if tipusok:
+            sys.stderr.write("HIBA: A(z) %s titkot tartalmaz (%s). A kulcs a Beállítások → Kulcsok helyére való — "
+                             "vedd ki a fájlból, és utána mentheted. (Szándékos kivétel: git commit --no-verify.)\n"
+                             % (n, ", ".join(tipusok)))
+
+
+class Katt:
+    """A stage-elt blobok olvasása egyetlen `git cat-file --batch` folyamattal (sok fájlnál nem fork-onként)."""
+
+    def __init__(self):
+        self.p = subprocess.Popen(["git", "cat-file", "--batch"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  stderr=subprocess.DEVNULL)
+
+    def olvas(self, ut):
+        if "\n" in ut:   # a batch-protokoll soronként olvas: az újsoros nevet külön hívással
+            r = subprocess.run(["git", "cat-file", "blob", ":0:" + ut], capture_output=True)
+            if r.returncode != 0:
+                raise OSError("nem olvasható: " + tiszta_nev(ut))
+            return r.stdout if len(r.stdout) <= MAX_OLVAS else b""
+        self.p.stdin.write((":0:" + ut + "\n").encode("utf-8", "surrogateescape"))
+        self.p.stdin.flush()
+        fej = self.p.stdout.readline().split()
+        if len(fej) != 3 or fej[1] != b"blob":
+            raise OSError("nem olvasható: " + tiszta_nev(ut))
+        meret = int(fej[2])
+        adat = self.p.stdout.read(meret)
+        self.p.stdout.read(1)
+        if len(adat) != meret:
+            raise OSError("csonka olvasás: " + tiszta_nev(ut))
+        return adat if meret <= MAX_OLVAS else b""
+
+    def zar(self):
+        try:
+            self.p.stdin.close()
+        finally:
+            self.p.wait()
+
+
+def stage_mod():
+    r = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"], capture_output=True)
+    if r.returncode != 0:
+        raise OSError("a stage-elt fájlok listája nem olvasható")
+    utak = [u.decode("utf-8", "surrogateescape") for u in r.stdout.split(b"\0") if u]
+    talalatok = []
+    katt = Katt()
+    try:
+        for ut in utak:
+            tipusok = tartalom_talalat(katt.olvas(ut))
+            if tipusok or env_fajl(ut):
+                talalatok.append((ut, tipusok))
+    finally:
+        katt.zar()
+    return talalatok
+
+
+def fajlok_mod(gyoker):
+    utak = [u.decode("utf-8", "surrogateescape") for u in sys.stdin.buffer.read().split(b"\0") if u]
+    talalatok = []
+    for ut in utak:
+        teljes = os.path.join(gyoker, ut)
+        if os.path.islink(teljes) or not os.path.isfile(teljes):
+            continue
+        tipusok = []
+        if os.path.getsize(teljes) <= MAX_OLVAS:
+            with open(teljes, "rb") as f:
+                tipusok = tartalom_talalat(f.read())
+        if tipusok or env_fajl(ut):
+            talalatok.append((ut, tipusok))
+    return talalatok
+
+
+def main(argv):
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    try:
+        talalatok = stage_mod() if argv[0] == "staged" else fajlok_mod(argv[1])
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
+        sys.stderr.write("HIBA: A titok-ellenőrzés nem futott le (%s).\n" % type(e).__name__)
+        return 2
+    if talalatok:
+        jelent(talalatok)
+        return 1
+    return 0
+
+
+sys.exit(main(sys.argv[1:]))
+PYEOF
+
+if [ "${1:-}" = "--titok-fajlok" ]; then
+    exec /usr/bin/python3 -I -c "$TITOK_PY" fajlok "${2:-.}"
+fi
+
+kuszob=5242880
+hiba=0
+
+while IFS= read -r -d '' fajl; do
+    meret=$(git cat-file -s ":./$fajl" 2>/dev/null) || {
+        printf '%s\n' "HIBA: Nem sikerült ellenőrizni a stage-elt fájlt: $fajl" >&2
+        exit 1
+    }
+    if [ "$meret" -gt "$kuszob" ]; then
+        printf '%s\n' "HIBA: Az 5 MB-nál nagyobb fájl nem commitolható: $fajl ($meret bájt)." >&2
+        hiba=1
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+[ "$hiba" -eq 0 ] || exit "$hiba"
+
+# 0.9: titok-gát — kulcsok, tokenek, privát kulcs, .env a stage-elt tartalomban (a git ingyenes fiókon a privát repóban sem szűr)
+titok_rc=0
+/usr/bin/python3 -I -c "$TITOK_PY" staged || titok_rc=$?
+[ "$titok_rc" -eq 0 ] || exit 1
+
+# Lancolas (/cx kor 6): ha a git-ala a felhasznalo globalis hooksPath-ja miatt helyi hooksPath-t allitott, a felhasznalo
+# globalis pre-commit-ja ne vesszen el — a sajat ellenorzes UTAN lefut. (Mas hook-tipus nincs lancolva: kimondott korlat.)
+elozo="$(git config --get kezelt.elozohooks 2>/dev/null || true)"
+if [ -n "$elozo" ] && [ -x "$elozo/pre-commit" ]; then
+    exec "$elozo/pre-commit" "$@"
+fi
+exit 0

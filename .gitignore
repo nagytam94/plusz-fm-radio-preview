@@ -1,0 +1,27 @@
+# Operációs rendszer
+.DS_Store
+
+# Titkok és helyi beállítások
+.env
+.env.*
+
+# Függőségek és build
+node_modules/
+build/
+dist/
+
+# Nagy médiafájlok
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.heic
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+*.flac
+*.m4a
