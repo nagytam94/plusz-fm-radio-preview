@@ -57,6 +57,10 @@ A változat arculati előnézet. Az eredeti rádióoldalt nem módosítja. A zá
 
 ## GitHub Pages
 
+Nyilvános előnézet: https://nagytam94.github.io/plusz-fm-radio-preview/
+
+Külön tároló: https://github.com/nagytam94/plusz-fm-radio-preview — a meglévő Plusz FM tárolót nem módosítja. A tulaj jóváhagyásával nyilvános. Élő ellenőrzés: HTTP 200, 8/8 Chrome-próba sikeres, HTTPS kötelező (2026-10-21).
+
 Kitételi csomag készítése: `npm run build:pages`. A Pages forrása a `main` ág `/docs` mappája. A fájlhivatkozások relatívak, így projektútvonalon is működnek. A csomag kizárólag a weboldalhoz szükséges fájlokat tartalmazza; a projektkártyát és a teszteket nem szolgálja ki a webhely.
 
 Frissítéskor az oldal módosítása után futtasd újra a build parancsot, majd a változásokkal együtt a `docs` mappát is mentsd és töltsd fel. A kitétel nem használ külön fizetős szolgáltatást vagy telepített függőséget. A privát forrásból publikáló Pages elérhetősége a GitHub-csomagtól függ.

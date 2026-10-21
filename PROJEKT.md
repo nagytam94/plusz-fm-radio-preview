@@ -5,7 +5,7 @@ vezeto: ember
 munkamod: alapos
 fo_motor: codex
 segedmotorok: [argon, flash]
-kozzetett:
+kozzetett: https://nagytam94.github.io/plusz-fm-radio-preview/
 letrehozva: 2026-10-21
 ---
 
@@ -50,3 +50,5 @@ Az ügynök a fix, a motor cserélhető; motorváltáskor a Napló kap egy sort.
 - 2026-10-21 — A tulaj kérésére Argon kapta a lejátszó modult és tesztjeit; az ingyenes OpenRouter külön teszteseteket adott. Az első OpenRouter-modell 404-et adott, a második (cohere/north-mini-code:free) sikeres. Ember saját futtatása: 18/18 egységteszt sikeres.
 - 2026-10-21 — Első változat megépítve, a műsorrend tájékoztató, a képek illusztrációk. Ember kiegészítő tesztje feltárta a késleltetett pause és a váratlan streamvég hibáját; javítva. Végső saját futtatás: 20/20 egységteszt és 8/8 Chrome-próba sikeres, mindkét valódi MP3 streammel. Előnézet: http://127.0.0.1:56856/index.html. A projekt aktív, tulajdonosi lezárásra nem került sor.
 - 2026-10-21 — A tulaj GitHub Pages kitételt kért. Külön docs csomag készült kizárólag a weboldal fájljaival; a projektkártya és a tesztek nem kerülnek a webes könyvtárba. A GitHub tároló alapbeállítása privát.
+- 2026-10-21 — A tulaj kérte, hogy meglévő Plusz FM repót ne írjunk felül. Külön, új privát tároló létrejött és a feltöltés sikeres: https://github.com/nagytam94/plusz-fm-radio-preview (origin/main). A Pages bekapcsolását a GitHub 422-es hibával elutasította: a jelenlegi csomag ezt a privát repón nem támogatja. Az új repó nyilvánossá tételéhez a tulaj döntése kell a webes-kitetel szabály szerint; a közzétett cím addig üres.
+- 2026-10-21 — A tulaj kifejezetten kérte: „rakd publikusra”. Kizárólag az új plusz-fm-radio-preview tárolót tettük nyilvánossá; a meglévő Plusz FM tárolóhoz nem nyúltunk. GitHub Pages: main ág, /docs, HTTPS kötelező. Élő cím: https://nagytam94.github.io/plusz-fm-radio-preview/. Saját ellenőrzés: HTTP 200; a fő fájlok hash szerint megegyeznek a helyi kitételi csomaggal; a projektkártya és tesztek a Pages webhelyén 404-et adnak. A nyilvános oldalon 8/8 Chrome-próba sikeres, valódi hangindítással és adóváltással. Helyi egységtesztek: 20/20 sikeres. A projekt aktív marad, tulajdonosi lezárás nem történt.
