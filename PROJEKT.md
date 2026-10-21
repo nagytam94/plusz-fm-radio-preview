@@ -1,6 +1,6 @@
 ---
 nev: plusz-fm
-allapot: aktiv
+allapot: kesz
 vezeto: ember
 munkamod: alapos
 fo_motor: codex
@@ -25,7 +25,7 @@ Reszponzív rádiós kezdőlap saját arculati logóval, magyar szövegekkel, m�
 - [x] 2. Eredeti Plusz FM stream, közös lejátszásvezérlés és hangerő — ellenőrzés: mindkét stream HTTP 200 audio/mpeg; Chrome-ban valódi hangdekódolás, adóváltás, hiba és retry sikeres.
 - [x] 3. Műsorrend, rádióbemutató és kapcsolat — ellenőrzés: menük, ma/holnap gombok, hivatalos műsor- és kapcsolati hivatkozások.
 - [x] 4. Akadálymentes kezelőszervek, működő mobilnézet és helyi előnézet — ellenőrzés: 20/20 egységteszt, 8/8 böngészős próba; 320/390/768/1440 px; helyi oldal HTTP 200.
-- [ ] Megmutatás: kipróbálod, és kimondod: kész.
+- [x] Megmutatás: kipróbálod, és kimondod: kész — tulajdonosi jóváhagyás: „zard a projektet kesz”, 2026-10-21.
 
 ## Ki mit csinál
 Az ügynök a fix, a motor cserélhető; motorváltáskor a Napló kap egy sort.
@@ -52,3 +52,4 @@ Az ügynök a fix, a motor cserélhető; motorváltáskor a Napló kap egy sort.
 - 2026-10-21 — A tulaj GitHub Pages kitételt kért. Külön docs csomag készült kizárólag a weboldal fájljaival; a projektkártya és a tesztek nem kerülnek a webes könyvtárba. A GitHub tároló alapbeállítása privát.
 - 2026-10-21 — A tulaj kérte, hogy meglévő Plusz FM repót ne írjunk felül. Külön, új privát tároló létrejött és a feltöltés sikeres: https://github.com/nagytam94/plusz-fm-radio-preview (origin/main). A Pages bekapcsolását a GitHub 422-es hibával elutasította: a jelenlegi csomag ezt a privát repón nem támogatja. Az új repó nyilvánossá tételéhez a tulaj döntése kell a webes-kitetel szabály szerint; a közzétett cím addig üres.
 - 2026-10-21 — A tulaj kifejezetten kérte: „rakd publikusra”. Kizárólag az új plusz-fm-radio-preview tárolót tettük nyilvánossá; a meglévő Plusz FM tárolóhoz nem nyúltunk. GitHub Pages: main ág, /docs, HTTPS kötelező. Élő cím: https://nagytam94.github.io/plusz-fm-radio-preview/. Saját ellenőrzés: HTTP 200; a fő fájlok hash szerint megegyeznek a helyi kitételi csomaggal; a projektkártya és tesztek a Pages webhelyén 404-et adnak. A nyilvános oldalon 8/8 Chrome-próba sikeres, valódi hangindítással és adóváltással. Helyi egységtesztek: 20/20 sikeres. A projekt aktív marad, tulajdonosi lezárás nem történt.
+- 2026-10-21 — lezárva a tulaj kifejezett „zard a projektet kesz” jóváhagyásával. Zárójelentés: ZAROJELENTES.md; a zárópontokkal összevetve. Lezáráskori lekérés: élő oldal HTTP 200, lejátszó JavaScript HTTP 200. A parkoló és a külön rendszer-routing feladat a zárójelentésben szerepel.
